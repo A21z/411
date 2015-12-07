@@ -11,9 +11,7 @@ app.get('/', function(req, res) {
 app.get('/con-nas', function(req, res) {
     ping.sys.probe('con-nas.local', function (isAlive) {
         res.json({
-            'con-nas': {
-                'isAlive' : isAlive
-            }
+            'isAlive' : isAlive
         });
     });
 });
