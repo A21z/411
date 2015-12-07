@@ -1,4 +1,4 @@
-package com.reactnative;
+package com.apps;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
 
-        mReactRootView.startReactApplication(mReactInstanceManager, "ReactNative", null);
+        mReactRootView.startReactApplication(mReactInstanceManager, "apps", null);
 
         setContentView(mReactRootView);
     }
