@@ -1,4 +1,4 @@
-package com.apps;
+package fr.fooo.quatrecentonze;
 
 import android.app.Activity;
 import android.os.Bundle;
