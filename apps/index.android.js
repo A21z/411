@@ -8,6 +8,7 @@ var {
   Text,
   View,
   TouchableNativeFeedback,
+  PullToRefreshViewAndroid,
   } = React;
 
 var apps = React.createClass({
@@ -22,17 +23,23 @@ var apps = React.createClass({
               <Text style={styles.buttonText}>Start con-nas</Text>
             </View>
           </TouchableNativeFeedback>
-          <Text>{this.state.feedback}</Text>
         </View>
     }
 
     return (
-      <View style={styles.container}>
-        <Text>{this.state.loaded ? '' : 'loading...'}</Text>
-        <Text>{this.state.stateError ? 'error getting con-nas state' : ''}</Text>
-        <Text>{this.state.isAlive ? 'con-nas is up' : ''}</Text>
-        {button}
-      </View>
+      <PullToRefreshViewAndroid
+        style={styles.pullToRefreshViewAndroid}
+        refreshing={!this.state.loaded}
+        onRefresh={this.onRefresh}
+      >
+        <View style={styles.container}>
+          <Text>{this.state.loaded ? '' : 'loading...'}</Text>
+          <Text>{this.state.stateError ? 'error getting con-nas state' : ''}</Text>
+          <Text>{this.state.isAlive ? 'con-nas is up' : ''}</Text>
+          <Text>{this.state.feedback}</Text>
+          {button}
+        </View>
+      </PullToRefreshViewAndroid>
     );
   },
   componentDidMount: function () {
@@ -61,10 +68,16 @@ var apps = React.createClass({
       })
       .done();
   },
+  // This is a dirty mock function to easily test random states from the server
+  getConNasStateMock: function () {
+    var rnd = Math.floor(Math.random() * (2));
+    this.setState({loaded: true, isAlive: rnd > 0});
+  },
   wakeConNas: function () {
+    var _this = this;
     this.setState({wakingPi: true});
     fetch(config.baseUrl + '/con-nas', {
-      method: 'post',
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -76,7 +89,10 @@ var apps = React.createClass({
         if (responseData.error) {
           this.setState({feedback: 'pi returned an error', wakingPi: false})
         } else {
-          this.setState({feedback: 'con-nas is waking up...', wakingPi: false, isAlive: true})
+          this.setState({feedback: 'con-nas is waking up...'})
+          setTimeout(function () {
+            _this.onRefresh();
+          }, 10000)
         }
       })
       .catch((error) => {
@@ -84,9 +100,16 @@ var apps = React.createClass({
       })
       .done();
   },
+  onRefresh() {
+    this.setState(this.getInitialState());
+    this.componentDidMount();
+  },
 });
 
 var styles = StyleSheet.create({
+  pullToRefreshViewAndroid: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
